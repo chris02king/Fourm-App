@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 import sqlite3
 import time
 import psutil
+import csv
+from io import StringIO
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -23,6 +26,27 @@ def init_db():
     conn.close()
 
 init_db()
+
+### 1. User Authentication ###
+def check_auth(username, password):
+    """This function is called to check if a username/password combination is valid."""
+    return username == 'admin' and password == 'password'
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+        'Login required.\n'
+        'You have to login with the correct credentials.', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
 
 @app.route('/')
 def home():
@@ -58,8 +82,9 @@ def view_feedback():
     conn.close()
     return render_template('feedback.html', rows=rows)
 
-
+### 2. Manage Database (protected by authentication) ###
 @app.route('/manage', methods=['GET', 'POST'])
+@requires_auth
 def manage_db():
     conn = sqlite3.connect('trip_feedback.db')
     cursor = conn.cursor()
@@ -77,12 +102,7 @@ def manage_db():
 
     return render_template('manage.html', rows=rows)
 
-import time
-import os
-import sqlite3
-import psutil
-from flask import jsonify
-
+### 3. Healthcheck ###
 @app.route('/healthcheck', methods=['GET'])
 def healthcheck():
     # Start timing
@@ -116,7 +136,48 @@ def healthcheck():
 
     return jsonify(health_metrics), 200
 
+### 4. Export Feedback as CSV (protected by authentication) ###
+@app.route('/export_csv', methods=['GET'])
+@requires_auth
+def export_csv():
+    conn = sqlite3.connect('trip_feedback.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, name, good_host, visit_date, rating, comments FROM feedback')
+    rows = cursor.fetchall()
+    conn.close()
 
+    # Create CSV in-memory
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['ID', 'Name', 'Good Host?', 'Visit Date', 'Rating', 'Comments'])
+    writer.writerows(rows)
+
+    output.seek(0)
+
+    return Response(output, mimetype='text/csv', headers={"Content-Disposition": "attachment;filename=feedback.csv"})
+
+### 5. Feedback Analytics Dashboard (protected by authentication) ###
+@app.route('/analytics', methods=['GET'])
+@requires_auth
+def analytics():
+    conn = sqlite3.connect('trip_feedback.db')
+    cursor = conn.cursor()
+
+    # Calculate the average rating
+    cursor.execute('SELECT AVG(rating) FROM feedback')
+    avg_rating = cursor.fetchone()[0] or 0
+
+    # Count 'Good Host' responses
+    cursor.execute('SELECT COUNT(*) FROM feedback WHERE good_host = "Yes"')
+    good_host_count = cursor.fetchone()[0]
+
+    # Total feedback submissions
+    cursor.execute('SELECT COUNT(*) FROM feedback')
+    total_feedback = cursor.fetchone()[0]
+
+    conn.close()
+
+    return render_template('analytics.html', avg_rating=avg_rating, good_host_count=good_host_count, total_feedback=total_feedback)
 
 
 if __name__ == '__main__':
