@@ -1,2 +1,2 @@
-sudo docker build -t fourm-app .
-sudo docker run -d -p 80:80 fourm-app
+docker build -t trip-feedback-app .
+docker run -d -p 5000:5000 trip-feedback-app
