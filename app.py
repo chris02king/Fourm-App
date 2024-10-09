@@ -5,6 +5,10 @@ import psutil
 import csv
 from io import StringIO
 from functools import wraps
+import boto3
+import base64
+from botocore.exceptions import ClientError
+import json
 
 app = Flask(__name__)
 
@@ -27,10 +31,34 @@ def init_db():
 
 init_db()
 
+# AWS Secrets Manager Integration
+def get_secret():
+    secret_name = "fourm-app-secrets"
+    region_name = "us-east-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(service_name="secretsmanager", region_name=region_name)
+
+    try:
+        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+    except ClientError as e:
+        raise Exception("Couldn't retrieve secret from AWS Secrets Manager.") from e
+
+    # Decrypts secret using the associated KMS key
+    if "SecretString" in get_secret_value_response:
+        secret = get_secret_value_response["SecretString"]
+    else:
+        secret = base64.b64decode(get_secret_value_response["SecretBinary"])
+
+    # Parse the secret and return it as a dictionary
+    return json.loads(secret)
+
 ### 1. User Authentication ###
 def check_auth(username, password):
     """This function is called to check if a username/password combination is valid."""
-    return username == 'admin' and password == 'password'
+    secret = get_secret()  # Retrieve username and password from AWS Secrets Manager
+    return username == secret["username"] and password == secret["password"]
 
 def authenticate():
     """Sends a 401 response that enables basic auth"""
