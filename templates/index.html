@@ -75,6 +75,23 @@
             text-decoration: underline;
         }
     </style>
+    <script>
+        (function(n,i,v,r,s,c,x,z){x=window.AwsRumClient={q:[],n:n,i:i,v:v,r:r,c:c};window[n]=function(c,p){x.q.push({c:c,p:p});};z=document.createElement('script');z.async=true;z.src=s;document.head.insertBefore(z,document.head.getElementsByTagName('script')[0]);})(
+          'cwr',
+          '879fc3bf-52bd-49a5-9f81-3d09b0343b8e',
+          '1.0.0',
+          'us-east-1',
+          'https://client.rum.us-east-1.amazonaws.com/1.19.0/cwr.js',
+          {
+            sessionSampleRate: 1,
+            identityPoolId: "us-east-1:65a23fd1-c943-4639-b636-4dfdb32842e0",
+            endpoint: "https://dataplane.rum.us-east-1.amazonaws.com",
+            telemetries: ["performance","errors","http"],
+            allowCookies: true,
+            enableXRay: true
+          }
+        );
+      </script>
 </head>
 <body>
     <div class="form-container">
