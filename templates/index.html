@@ -10,9 +10,7 @@
             background-color: #f2f2f2;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
@@ -74,6 +72,32 @@
         .socials a:hover {
             text-decoration: underline;
         }
+        /* New Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-around;
+            background-color: #838383;
+            padding: 10px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .navbar a:hover {
+            background-color: #474747;
+        }
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
     </style>
     <script>
         (function(n,i,v,r,s,c,x,z){x=window.AwsRumClient={q:[],n:n,i:i,v:v,r:r,c:c};window[n]=function(c,p){x.q.push({c:c,p:p});};z=document.createElement('script');z.async=true;z.src=s;document.head.insertBefore(z,document.head.getElementsByTagName('script')[0]);})(
@@ -94,6 +118,13 @@
       </script>
 </head>
 <body>
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/feedback">Feedback</a>
+        <a href="/manage">Manage Feedback</a>
+        <a href="/analytics">Analytics</a>
+    </div>
+
     <div class="form-container">
         <h2>Trip Feedback Form</h2>
         <form id="tripForm">
@@ -121,7 +152,7 @@
 
     <div class="socials">
         <p>Connect with me:</p>
-        <a href="https://www.instagram.com/chris02king" target="_blank">Instagram</a>
+        <a href="https://www.instagram.com/chris.king02" target="_blank">Instagram</a>
         <a href="https://www.snapchat.com/add/chrispk2" target="_blank">Snapchat</a>
         <a href="https://www.linkedin.com/in/chris-king-433b49126/" target="_blank">LinkedIn</a>
     </div>

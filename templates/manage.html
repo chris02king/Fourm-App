@@ -29,17 +29,39 @@
         .delete-form {
             display: inline-block;
         }
-        button {
+        /* Style for "Back to Home" button */
+        .back-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+        /* Style for "Delete" button */
+        .delete-button {
             background-color: red;
             color: white;
-            border: none;
             padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 14px;
+        }
+        .delete-button:hover {
+            background-color: darkred;
         }
     </style>
 </head>
 <body>
     <h2>Manage Feedback</h2>
+    <button class="back-button" onclick="window.location.href='/'">Back to Home</button>
+
     <table>
         <tr>
             <th>ID</th>
@@ -61,7 +83,7 @@
             <td>
                 <form method="POST" action="/manage" class="delete-form">
                     <input type="hidden" name="id" value="{{ row[0] }}">
-                    <button type="submit">Delete</button>
+                    <button type="submit" class="delete-button">Delete</button>
                 </form>
             </td>
         </tr>
